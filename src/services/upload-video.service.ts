@@ -1,23 +1,14 @@
-import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3'
-import config from '../config/config';
 import { generateUniqueId } from '../utils/generateUniqueId';
 import { validateValidVideoFormat } from '../validators';
 import { extractVideoType } from '../utils/extractVideoType';
-
+import { AwsS3Repo } from '../repositories/aws-s3.repo';
 
 export class UploadVideoService {
     private static instance: UploadVideoService;
-    private s3Config = {}
-    private s3Client: S3Client;
+    private awsS3Repo: AwsS3Repo;
+
     private constructor() {
-        this.s3Config = {
-            region: 'us-east-1',
-            credentials: {
-                accessKeyId: config.AWS_ACCESS_KEY_ID as string,
-                secretAccessKey: config.AWS_SECRET_ACCESS_KEY as string
-            }
-        }
-        this.s3Client = new S3Client(this.s3Config);
+        this.awsS3Repo = new AwsS3Repo();
     }
     public static getInstance(): UploadVideoService {
         if (!UploadVideoService.instance) {
@@ -29,12 +20,11 @@ export class UploadVideoService {
 
     public async uploadVideo(video: any) {
         try {
-
             if (!validateValidVideoFormat(video.mimetype)) {
                 return { success: false, message: "Unable to Upload the file", data: 'Invalid video format' };
             }
 
-            const videoName =  generateUniqueId()+ '.' +extractVideoType(video.mimetype) 
+            const videoName = generateUniqueId() + '.' + extractVideoType(video.mimetype)
             const params = {
                 Bucket: "videos-dev-cristian",
                 Key: videoName,
@@ -42,8 +32,7 @@ export class UploadVideoService {
             };
 
             try {
-                const command = new PutObjectCommand(params);
-                const res = await this.s3Client.send(command);
+                await this.awsS3Repo.uploadFile(params)
 
                 return { success: true, message: "File Uploaded with Successfull", videoName };
             } catch (error) {
