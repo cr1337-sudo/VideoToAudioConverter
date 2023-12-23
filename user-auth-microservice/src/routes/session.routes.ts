@@ -8,4 +8,6 @@ router.post('/register', controller.register)
 
 router.get('/users', controller.login)
 
+router.get('/token', controller.token)
+
 export default router
