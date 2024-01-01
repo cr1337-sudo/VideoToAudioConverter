@@ -22,7 +22,7 @@ export class UsersService {
 
       return response
     } catch (error) {
-      throw error
+      console.log(error)
     }
   }
 
@@ -30,7 +30,7 @@ export class UsersService {
     try {
       const response = await this.dynamoClient.postUser(params)
     } catch (error) {
-      throw error
+      console.log(error)
     }
   }
 }

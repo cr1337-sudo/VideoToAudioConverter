@@ -31,7 +31,7 @@ export class DynamoClient {
       
       return response
     } catch (error) {
-      throw error
+      console.log(error)
     }
   }
 
@@ -55,7 +55,7 @@ export class DynamoClient {
       const command = new PutItemCommand(paramuser)
       const result = await this.DynamoClient.send(command)
     } catch (error) {
-      throw error
+      console.log(error)
     }
   }
 }
