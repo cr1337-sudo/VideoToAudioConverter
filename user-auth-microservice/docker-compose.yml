@@ -1,0 +1,16 @@
+version: 1.0.0
+services: 
+  app:
+    build: . 
+    ports:
+      - "3000:3000"
+    links:
+      - dynamodb
+  dynamodb:
+    image: amazon/dynamodb-local
+    ports:
+      - "27017:27017"
+    environment:
+      - AWS_ACCESS_KEY_ID=AKIA6NTPN4ND5X6H44W4
+      - AWS_SECRET_ACCESS_KEY=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
+      - SECRET=5DoK5wwvIL91qxF7ub9E
