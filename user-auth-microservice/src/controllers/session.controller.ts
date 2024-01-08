@@ -6,14 +6,14 @@ import jwt from "jsonwebtoken";
 import config from "../config/config";
 import { generateToken, verifyToken } from "../utils/jwt";
 
-const parseName = (nameFromRequest: any): string => {
+export const parseName = (nameFromRequest: any): string => {
   if (!isString(nameFromRequest)) {
     throw new Error("Incorrect or missing name");
   }
   return nameFromRequest;
 };
 
-const parseEmail = (emailFromRequest: any): string => {
+export const parseEmail = (emailFromRequest: any): string => {
   if (!isEmail(emailFromRequest)) {
     console.log(emailFromRequest);
 
@@ -34,7 +34,7 @@ const isString = (string: string): boolean => {
 export class userController {
   async login(req: Request, res: Response): Promise<any> {
     const { mail, password } = req.body;
-    const secret = config.SECRET;
+    const secret = config.SECRET_JWT;
     const usersService = UsersService.getInstance();
     try {
       const user = await usersService.getUser({ mail, password });

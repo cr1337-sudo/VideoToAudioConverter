@@ -1,6 +1,5 @@
 import jwt, { JwtPayload } from 'jsonwebtoken'
 import config from '../config/config'
-import {Response, Request} from 'express'
 
 interface token {
   mail: string,
@@ -9,7 +8,7 @@ interface token {
 }
 
 export const verifyToken = (token: string): string | null => {
-    const verify = jwt.verify(token, config.SECRET) as token
+    const verify = jwt.verify(token, config.SECRET_JWT) as token
     const now = Date.now()    
     const limit = verify.exp - 20000
     
@@ -24,7 +23,7 @@ export const generateToken = (mail: string) => {
   const newToken = jwt.sign({
     mail,
     exp: Date.now() + 60 * 1000
-  }, config.SECRET) 
+  }, config.SECRET_JWT) 
 
   return newToken
 } 
