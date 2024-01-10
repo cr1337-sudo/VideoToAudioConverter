@@ -5,6 +5,7 @@ import { PassThrough, Readable } from 'stream';
 import { path } from '@ffmpeg-installer/ffmpeg'
 import ffmpeg from 'fluent-ffmpeg'
 import fs from 'fs/promises'
+import { buffer } from 'stream/consumers';
 
 
 async function convertVideoToMp3(bufferVideo: any, videoName: string) {
@@ -64,8 +65,9 @@ export class UploadVideoService {
             };
 
             await this.awsS3Repo.uploadFile(params)
+            const UrlDownload = await this.awsS3Repo.GetUrl(params)
             await fs.rm(mp3Path)
-
+            
             return { success: true, message: "File Uploaded with Successfull", videoName };
         } catch (error) {
             return { success: false, message: "Unable to Upload the file", data: error };

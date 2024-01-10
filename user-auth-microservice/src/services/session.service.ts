@@ -27,6 +27,7 @@ export class UsersService {
   }
 
   public async postUser (params: any): Promise<any> {
+    
     try {
       const response = await this.dynamoClient.postUser(params)
     } catch (error) {

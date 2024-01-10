@@ -3,17 +3,14 @@ import { styled } from "@mui/material/styles";
 import Box from "@mui/material/Box";
 import List from "@mui/material/List";
 import ListItem from "@mui/material/ListItem";
-import ListItemText from "@mui/material/ListItemText";
+import ReactAudioPlayer from "react-audio-player";
 import IconButton from "@mui/material/IconButton";
 import Grid from "@mui/material/Grid";
 import Typography from "@mui/material/Typography";
-import PlayCircleIcon from "@mui/icons-material/PlayCircle";
-import FileDownloadIcon from '@mui/icons-material/FileDownload';
-import './VideoList.css'
-import AudioVisualizer from "../VideoVisualizer/VideoVisualizer";
+import FileDownloadIcon from "@mui/icons-material/FileDownload";
 
 function generate(element: React.ReactElement) {
-  return [0, 1, 2].map((value) =>
+  return [0,1,2,3,4].map((value) =>
     React.cloneElement(element, {
       key: value,
     })
@@ -41,10 +38,7 @@ export default function VideoList() {
                   </IconButton>
                 }
               >
-                  <IconButton className="hola">
-                    <PlayCircleIcon />
-                  </IconButton>
-                <ListItemText primary={<AudioVisualizer/>} />
+                <ReactAudioPlayer src="https://commondatastorage.googleapis.com/codeskulptor-demos/pyman_assets/ateapill.ogg"  controls />
               </ListItem>
             )}
           </List>

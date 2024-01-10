@@ -36,6 +36,8 @@ export class DynamoClient {
   }
 
   async postUser (params: any): Promise<any> {
+    console.log(params);
+    
     try {
       const paramuser = {
         Item: {
@@ -47,7 +49,9 @@ export class DynamoClient {
           },
           name: {
             S: params.name
-
+          },
+          id:{
+            S: params.id
           }
         },
         TableName: 'users'

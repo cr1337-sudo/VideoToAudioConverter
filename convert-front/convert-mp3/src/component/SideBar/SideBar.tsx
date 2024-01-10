@@ -159,7 +159,7 @@ export default function MiniDrawer() {
                     justifyContent: 'center',
                   }}
                 >
-                  {index % 2 === 0 ?  <Link to='/'><HomeIcon  /></Link> : <Link to='/videos'><VideoLibraryIcon /></Link>}
+                  {index % 2 === 0 ?  <Link to='/home'><HomeIcon  /></Link> : <Link to='/videos'><VideoLibraryIcon /></Link>}
                 </ListItemIcon>
                 <ListItemText primary={text} sx={{ opacity: open ? 1 : 0 }} />
               </ListItemButton>

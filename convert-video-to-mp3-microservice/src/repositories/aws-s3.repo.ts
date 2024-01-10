@@ -1,5 +1,7 @@
-import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3'
+import { S3Client, PutObjectCommand, GetObjectCommand } from '@aws-sdk/client-s3'
+import { getSignedUrl } from '@aws-sdk/s3-request-presigner'
 import config from '../config/config';
+
 
 interface UploadFileParams {
     Bucket: string,
@@ -22,7 +24,14 @@ export class AwsS3Repo {
     }
     async uploadFile( params:UploadFileParams) {
         const command = new PutObjectCommand(params);
+        
         const res = await this.s3Client.send(command);
+        
+    }
+
+    async GetUrl(params:UploadFileParams){
+        const command = new GetObjectCommand(params)
+        return await getSignedUrl(this.s3Client, command, {expiresIn: 3600})
     }
 
 

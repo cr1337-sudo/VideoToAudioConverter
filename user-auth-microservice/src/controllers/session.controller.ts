@@ -5,6 +5,7 @@ import { UsersService } from "../services/session.service";
 import jwt from "jsonwebtoken";
 import config from "../config/config";
 import { generateToken, verifyToken } from "../utils/jwt";
+import { uuid } from 'uuidv4'
 
 export const parseName = (nameFromRequest: any): string => {
   if (!isString(nameFromRequest)) {
@@ -42,9 +43,11 @@ export class userController {
       if (!isValidatePassword(password, user.Items[0].password.S)) {
         return res.send("Contraseña incorrecta");
       }
+            
       const token = jwt.sign(
         {
           mail,
+          id: user.id, 
           exp: Date.now() + 60 * 1000,
         },
         secret
@@ -59,12 +62,14 @@ export class userController {
 
   async register(req: Request, res: Response): Promise<any> {
     const { mail, password, name } = req.body;
+    const idGenerate = uuid()
     const passwordHash = createHash(password);
 
     const newUser: user = {
       name: parseName(name),
       mail: parseEmail(mail),
       password: passwordHash,
+      id: idGenerate
     };
     const usersService = UsersService.getInstance();
     try {
@@ -83,15 +88,17 @@ export class userController {
 
   async token(req: Request, res: Response): Promise<any> {
     const token = req.headers.authorization?.split(' ')[1]
-    let mail = null;
+    console.log(token);
+    
     if (token) {
-      mail = verifyToken(token);
-    }
-    if (typeof mail == "string") {
-      const newToken = generateToken(mail);
-      res.cookie("Token", newToken, { httpOnly: true });
-      
-    }
+     const response = verifyToken(token)
+     if (response != null) {
+       const newToken = generateToken(response?.id , response?.mail)       
+       res.cookie("Token", newToken, { httpOnly: true });
+       console.log(newToken);
+       
+     }
+ }
 
     res.json("token accepted");
   }

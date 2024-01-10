@@ -1,0 +1,52 @@
+import  {DynamoDBClient,CreateTableCommand, AttributeDefinition, KeySchemaElement, DescribeTableCommand} from '@aws-sdk/client-dynamodb'
+import config from '../src/config/config'
+export default async function setUpEnviroment() {
+
+  const DynamoConfig: any = {
+    region: 'us-east-2',
+    credentials: {
+      accessKeyId: config.AWS_ACCESS_KEY_ID,
+      secretAccessKey: config.AWS_SECRET_ACCESS_KEY
+
+    }}
+  const DynamoClient = new DynamoDBClient(DynamoConfig)
+  
+        try {
+          const describeTableParams = { TableName: 'users' };
+          try {
+            await DynamoClient.send(new DescribeTableCommand(describeTableParams));
+            console.log('La tabla ya existe. No es necesario crearla.');
+            return;
+          } catch (error: any) {
+            if (error.name !== 'ResourceNotFoundException') {
+              throw error;
+            }
+          }
+          const params = {
+            TableName: 'users',
+            KeySchema: [
+              { AttributeName: 'mail', KeyType: 'HASH' },
+              { AttributeName: 'id', KeyType: 'RANGE' }
+            ] as KeySchemaElement[],
+            AttributeDefinitions: [
+              { AttributeName: 'id', AttributeType: 'S' },
+              { AttributeName: 'mail', AttributeType: 'S' }
+          
+            ] as AttributeDefinition[],
+            ProvisionedThroughput: {
+              ReadCapacityUnits: 1,
+              WriteCapacityUnits: 1,
+            },
+          };
+          
+    
+          const command = new CreateTableCommand(params);
+          const result = await DynamoClient.send(command);
+          
+          console.log(result);
+          return result;
+        } catch (error) {
+          console.error(error);
+          throw error;
+        }
+      }
