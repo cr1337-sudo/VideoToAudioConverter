@@ -2,12 +2,14 @@ import express, {Express} from 'express';
 import VideoRouter from './routes/routes';
 import multer from "multer"
 import config from './config/config';
+import morgan from 'morgan'
 
 
 const app: Express = express();
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
+app.use(morgan('dev'))
 app.use(express.urlencoded({extended:true}))
 app.use("/video",upload.single('video'), VideoRouter)
 

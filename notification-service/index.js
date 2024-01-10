@@ -6,7 +6,7 @@ const server = http.createServer((req, res) => {
     // Configurar encabezados de respuesta
     const url = req.url;
     const method = req.method;
-    if (url === "/mail" && method === "POST") {
+    if (url === "/mail" || url === '/mail/' && method === "POST") {
         let body = '';
 
         req.on('data', (chunk) => {
