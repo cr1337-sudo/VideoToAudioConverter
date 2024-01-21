@@ -6,6 +6,34 @@ button.MuiButtonBase-root.MuiIconButton-root.MuiIconButton-edgeEnd.MuiIconButton
     outline: none;
 }
 
-/* .MuiGrid-root.MuiGrid-item.MuiGrid-grid-xs-12.MuiGrid-grid-md-6.css-13i4rnv-MuiGrid-root {
-    margin-top: -100%;
-} */
+.container{
+    width: 100%;
+    margin-left: 24%;
+}
+.item {
+    width: 50%;
+    margin-left: 50%;
+}
+
+
+.css-2ulfj5-MuiTypography-root {
+    margin-left: 40%;
+}
+
+@media only screen and (max-width: 600px) {
+    .container{
+        width: 100%;
+        margin-left: 5%;
+    }
+ 
+
+    .css-2ulfj5-MuiTypography-root {
+        margin: 0;
+        font-family: "Roboto","Helvetica","Arial",sans-serif;
+        font-weight: 500;
+        font-size: 1.25rem;
+        line-height: 1.6;
+        letter-spacing: 0.0075em;
+    }
+    
+}

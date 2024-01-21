@@ -1,25 +1,12 @@
-import jwt, { JwtPayload } from "jsonwebtoken";
+import jwt from "jsonwebtoken";
 import config from "../config/config";
 
-interface token {
+interface Token {
   id: string;
   mail: string;
   exp: number;
   iat: number;
 }
-
-export const verifyToken = (
-  token: string
-): { id: string; mail: string } | null => {
-  const verifiedtoken = jwt.verify(token, config.SECRET_JWT) as token;
-  const now = Date.now();
-  const limit = verifiedtoken.exp - 20000;
-  if (verifiedtoken.exp !== undefined && verifiedtoken.exp < now) {
-    throw new Error("Token expirado");
-  }
-  if (now < limit) return null 
-  return { id: verifiedtoken.id, mail: verifiedtoken.mail };
-};
 
 export const generateToken = (
   mail: string | undefined,
@@ -29,10 +16,28 @@ export const generateToken = (
     {
       id,
       mail,
-      exp: Date.now() + 60 * 1000,
+      exp: Date.now() + 3600000,
     },
     config.SECRET_JWT
   );
 
   return newToken;
+};
+
+export const verifyToken = (token: string ): { id: string; mail: string } | null => {
+  const verifiedtoken = jwt.verify(token, config.SECRET_JWT) as Token ;
+  const limit = verifiedtoken.exp - 1200000;
+  if (verifiedtoken.exp !== undefined && verifiedtoken.exp < Date.now()) {
+    throw new Error("Token expirado");
+  }
+  if (Date.now() < limit) return null;
+  return { id: verifiedtoken.id, mail: verifiedtoken.mail };
+};
+
+export const refreshToken = (token: any): any => {
+    const response = verifyToken(token);
+    if (response != null) {
+      const newToken = generateToken(response?.id, response?.mail);
+      return newToken
+  }
 };

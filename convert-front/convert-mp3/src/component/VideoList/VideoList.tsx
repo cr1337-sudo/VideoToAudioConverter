@@ -1,20 +1,19 @@
 import * as React from "react";
+import { useEffect, useState } from "react";
 import { styled } from "@mui/material/styles";
 import Box from "@mui/material/Box";
 import List from "@mui/material/List";
 import ListItem from "@mui/material/ListItem";
-import ReactAudioPlayer from "react-audio-player";
 import IconButton from "@mui/material/IconButton";
 import Grid from "@mui/material/Grid";
 import Typography from "@mui/material/Typography";
 import FileDownloadIcon from "@mui/icons-material/FileDownload";
+import Cookies from "js-cookie";
+import "./VideoList.css";
 
-function generate(element: React.ReactElement) {
-  return [0,1,2,3,4].map((value) =>
-    React.cloneElement(element, {
-      key: value,
-    })
-  );
+interface Video {
+  url: string;
+  // Agrega más propiedades según sea necesario
 }
 
 const Demo = styled("div")(({ theme }) => ({
@@ -22,26 +21,51 @@ const Demo = styled("div")(({ theme }) => ({
 }));
 
 export default function VideoList() {
+  const [videos, setVideos] = useState<Video[]>([]);
+  const token = Cookies.get("Token");
+  const fetchData = async () => {
+    const response = await fetch("http://localhost:3030/video/myvideos", {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    const res = await response.json();
+    console.log(res);
+    setVideos(res);
+  };
+  useEffect(() => {
+    fetchData();
+  }, []);
+
   return (
     <Box sx={{ flexGrow: 1, maxWidth: 752 }}>
       <Grid item xs={12} md={6}>
-        <Typography sx={{ mt: 4, mb: 2 }} variant="h6" component="div">
+        <Typography variant="h6" component="div">
           Your list videos
         </Typography>
-        <Demo>
-          <List>
-            {generate(
-              <ListItem
-                secondaryAction={
-                  <IconButton edge="end" aria-label="delete">
-                    <FileDownloadIcon />
-                  </IconButton>
-                }
-              >
-                <ReactAudioPlayer src="https://commondatastorage.googleapis.com/codeskulptor-demos/pyman_assets/ateapill.ogg"  controls />
-              </ListItem>
-            )}
-          </List>
+        <Demo className="container">
+            <List className="item" dense>
+              {videos.map((video, index) => (
+                <ListItem
+                  key={index}
+                  secondaryAction={
+                    <a
+                      href={video.url}
+                      target="_self"
+                      rel="noopener noreferrer"
+                    >
+                      <IconButton edge="end" aria-label="download">
+                        <FileDownloadIcon />
+                      </IconButton>
+                    </a>
+                  }
+                >
+                  <audio controls>
+                    <source src={video.url} type="audio/mp3" />
+                  </audio>
+                </ListItem>
+              ))}
+            </List>
         </Demo>
       </Grid>
     </Box>

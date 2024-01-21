@@ -1,45 +1,20 @@
 import { generateUniqueId } from '../utils/generateUniqueId';
 import { validateValidVideoFormat } from '../validators';
 import { AwsS3Repo } from '../repositories/aws-s3.repo';
-import { PassThrough, Readable } from 'stream';
-import { path } from '@ffmpeg-installer/ffmpeg'
-import ffmpeg from 'fluent-ffmpeg'
+import {convertVideoToMp3} from '../utils/convertMp3'
 import fs from 'fs/promises'
-import { buffer } from 'stream/consumers';
+import { VideoRepository } from '../repositories/mongo.repo';
 
 
-async function convertVideoToMp3(bufferVideo: any, videoName: string) {
-    return new Promise((resolve, reject) => {
-        const mp3Path = './mp3/' + videoName;
-        const readableBufferVideo = Readable.from(bufferVideo)
-        const command = ffmpeg();
-        command.setFfmpegPath(path)
-        command.input(readableBufferVideo);
-        command.format('mp3')
-        command.output(mp3Path)
-        command.on('end', () => {
-            return resolve(mp3Path);
-        });
-        command.on('start', (commandLine) => {
-            console.log('ffmpeg started conversion', commandLine)
-        })
-        command.on('stderr', function (stderrLine) {
-            console.error('Stderr output: ' + stderrLine)
-        })
-        command.on('error', (err: any) => {
-            return reject(err)
-        });
-
-        command.run();
-    });
-}
 
 export class UploadVideoService {
     private static instance: UploadVideoService;
     private awsS3Repo: AwsS3Repo;
+    private VideoRepository: VideoRepository;
 
     private constructor() {
         this.awsS3Repo = new AwsS3Repo();
+        this.VideoRepository = new VideoRepository();
     }
     public static getInstance(): UploadVideoService {
         if (!UploadVideoService.instance) {
@@ -49,7 +24,7 @@ export class UploadVideoService {
         return UploadVideoService.instance;
     }
 
-    public async uploadVideo(video: any) {
+    public async uploadVideo(video: any, idUser: string) {
         try {
             if (!validateValidVideoFormat(video.mimetype)) {
                 return { success: false, message: "Unable to Upload the file", data: 'Invalid video format' };
@@ -66,6 +41,8 @@ export class UploadVideoService {
 
             await this.awsS3Repo.uploadFile(params)
             const UrlDownload = await this.awsS3Repo.GetUrl(params)
+            await this.VideoRepository.uploadVideosMongo({idUser, url:UrlDownload})
+            
             await fs.rm(mp3Path)
             
             return { success: true, message: "File Uploaded with Successfull", videoName };

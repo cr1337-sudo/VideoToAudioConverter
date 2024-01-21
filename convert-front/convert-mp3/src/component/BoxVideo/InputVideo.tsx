@@ -1,107 +1,127 @@
-import React, { useRef, useState, ChangeEvent } from 'react';
-import VideoFileIcon from '@mui/icons-material/VideoFile';
-import PropTypes from 'prop-types';
-import CloudUploadIcon from '@mui/icons-material/CloudUpload';
-import ClearIcon from '@mui/icons-material/Clear';
-import './InputVideo.css';
-
-import { ListItemIcon } from '@mui/material';
-
+import React, { useRef, useState, ChangeEvent } from "react";
+import VideoFileIcon from "@mui/icons-material/VideoFile";
+import PropTypes from "prop-types";
+import CloudUploadIcon from "@mui/icons-material/CloudUpload";
+import ClearIcon from "@mui/icons-material/Clear";
+import Cookies from "js-cookie";
+import "./InputVideo.css";
+import LoadingButton from '@mui/lab/LoadingButton';
 interface DropFileInputProps {
-    onFileChange: (fileList: File[]) => void;
+  onFileChange: (file: File | null) => void;
 }
 
 function bytesToMB(bytes: number): number {
-    return bytes / (1024 * 1024);
+  return bytes / (1024 * 1024);
 }
 
-const DropFileInput: React.FC<DropFileInputProps> = (props) => {
+const InputVideo: React.FC<DropFileInputProps> = (props) => {
+  const wrapperRef = useRef<HTMLDivElement>(null);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [loading, setLoading] = useState(false);
 
-    const wrapperRef = useRef<HTMLDivElement>(null);
+  
+  const uploadVideo = async () => {
+    const token = Cookies.get("Token");
+    
+    if (selectedFile && token) {
+        setLoading(true);
+      const formData = new FormData();
+      formData.append("video", selectedFile);
 
-    const [fileList, setFileList] = useState<File[]>([]);
+      try {
+        const response = await fetch("http://localhost:3030/video/upload", {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          body: formData,
+        });
 
-    const onDragEnter = () => wrapperRef.current?.classList.add('dragover');
+        // Procesar la respuesta si es necesario
+        const data = await response.json();
+        
+      } catch (error) {
+        console.error("Error during upload:", error);
+      } finally{
+        setLoading(false)
+      }
+    }
+  };
 
-    const onDragLeave = () => wrapperRef.current?.classList.remove('dragover');
+  const onDragEnter = () => wrapperRef.current?.classList.add("dragover");
 
-    const onDrop = () => wrapperRef.current?.classList.remove('dragover');
+  const onDragLeave = () => wrapperRef.current?.classList.remove("dragover");
 
-  // ...
+  const onDrop = () => wrapperRef.current?.classList.remove("dragover");
 
-const onFileDrop = (e: ChangeEvent<HTMLInputElement>) => {
+  const onFileDrop = (e: ChangeEvent<HTMLInputElement>) => {
     const newFile = e.target.files?.[0];
 
     if (newFile && isVideoFile(newFile)) {
-        const updatedList = [...fileList, newFile];
-        setFileList(updatedList);
-        props.onFileChange(updatedList);
+      setSelectedFile(newFile);
+      props.onFileChange(newFile);
     }
-}
+  };
 
-const isVideoFile = (file: File) => {
-    return file.type.startsWith('video/');
-}
+  const isVideoFile = (file: File) => {
+    return file.type.startsWith("video/");
+  };
 
-// ...
+  const fileRemove = () => {
+    setSelectedFile(null);
+    props.onFileChange(null);
+  };
 
-
-    const fileRemove = (file: File) => {
-        const updatedList = [...fileList];
-        const index = updatedList.indexOf(file);
-        if (index !== -1) {
-            updatedList.splice(index, 1);
-            setFileList(updatedList);
-            props.onFileChange(updatedList);
-        }
-    }
-
-    return (
-        <>
-            <div
-                ref={wrapperRef}
-                className="drop-file-input"
-                onDragEnter={onDragEnter}
-                onDragLeave={onDragLeave}
-                onDrop={onDrop}
-            >
-                <div className="drop-file-input__label">
-                    <ListItemIcon >
-                        <CloudUploadIcon />
-                    </ListItemIcon>
-                    <p>Drag & Drop your videos here</p>
-                </div>
-                <input type="file" value="" onChange={onFileDrop}/>
+  return (
+    <>
+      <div className="containerConvert">
+        <div
+          ref={wrapperRef}
+          className="drop-file-input"
+          onDragEnter={onDragEnter}
+          onDragLeave={onDragLeave}
+          onDrop={onDrop}
+        >
+          <div className="drop-file-input__label">
+            <CloudUploadIcon />
+            <p>Drag & Drop your video here</p>
+          </div>
+          <input className="input" type="file" value="" onChange={onFileDrop} />
+        </div>
+        {selectedFile && (
+          <div className="drop-file-preview">
+            <div className="drop-file-preview__item">
+              <VideoFileIcon sx={{ mt: 2 }} />
+              <div className="drop-file-preview__item__info">
+                <p>{selectedFile.name}</p>
+                <p style={{ paddingLeft: "5px" }}>
+                  {bytesToMB(selectedFile.size).toFixed(2)}MB
+                </p>
+              </div>
+              <span
+                className="drop-file-preview__item__del"
+                onClick={fileRemove}
+              >
+                <ClearIcon />
+              </span>
             </div>
-            {
-                fileList.length > 0 ? (
-                    <div className="drop-file-preview">
-                        <p className="drop-file-preview__title">
-                            Ready to convert
-                        </p>
-                        {
-                            fileList.map((item, index) => (
-                                <div key={index} className="drop-file-preview__item">
-                                    <ListItemIcon>
-                                    <VideoFileIcon/>
-                                    </ListItemIcon>
-                                    <div className="drop-file-preview__item__info">
-                                        <p>{item.name}</p>
-                                        <p style={{paddingLeft: '5px'}}>{bytesToMB(item.size).toFixed(2)}MB</p>
-                                    </div>
-                                    <span className="drop-file-preview__item__del" onClick={() => fileRemove(item)}><ClearIcon/></span>
-                                </div>
-                            ))
-                        }
-                    </div>
-                ) : null
-            }
-        </>
-    );
-}
+            <LoadingButton
+          onClick={uploadVideo}
+          loading={loading}
+          variant="contained"
+        >
+          <span>Convert</span>
+        </LoadingButton>
+            
+          </div>
+        )}
+      </div>
+    </>
+  );
+};
 
-DropFileInput.propTypes = {
-    onFileChange: PropTypes.func.isRequired,
-}
+InputVideo.propTypes = {
+  onFileChange: PropTypes.func.isRequired,
+};
 
-export default DropFileInput;
+export default InputVideo;

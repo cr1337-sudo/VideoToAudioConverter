@@ -36,7 +36,6 @@ export class DynamoClient {
   }
 
   async postUser (params: any): Promise<any> {
-    console.log(params);
     
     try {
       const paramuser = {
@@ -57,7 +56,7 @@ export class DynamoClient {
         TableName: 'users'
       }
       const command = new PutItemCommand(paramuser)
-      const result = await this.DynamoClient.send(command)
+      await this.DynamoClient.send(command)
     } catch (error) {
       throw error
     }

@@ -43,10 +43,8 @@ export default async function setUpEnviroment() {
           const command = new CreateTableCommand(params);
           const result = await DynamoClient.send(command);
           
-          console.log(result);
           return result;
         } catch (error) {
-          console.error(error);
           throw error;
         }
       }

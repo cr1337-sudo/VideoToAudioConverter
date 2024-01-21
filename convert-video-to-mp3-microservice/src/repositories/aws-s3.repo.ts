@@ -31,7 +31,7 @@ export class AwsS3Repo {
 
     async GetUrl(params:UploadFileParams){
         const command = new GetObjectCommand(params)
-        return await getSignedUrl(this.s3Client, command, {expiresIn: 3600})
+        return await getSignedUrl(this.s3Client, command, {expiresIn: 360000})
     }
 
 

@@ -8,7 +8,6 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    margin-top: -40%;
     background-color: var(--input-bg);
 }
 
@@ -109,12 +108,23 @@
 .drop-file-preview__item:hover .drop-file-preview__item__del {
     opacity: 1;
 }
+.containerConvert{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
 
+.NavBar{
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+}
 
 
 @media only screen and (max-width: 600px) {
     .drop-file-input {
-        margin-left: 15%;
+        margin-left: -5%;
         width: 90%; /* Ocupa el ancho completo en dispositivos móviles */
         margin-top: 0; /* Elimina el margen superior en dispositivos móviles si es necesario */
     }
@@ -130,7 +140,7 @@
         margin-bottom: 10px;
         background-color: var(--input-bg);
         padding: 15px;
-        margin-left: 15%;
+        margin-left: -5%;
         border-radius: 20px;
     }
     .drop-file-preview__title {
