@@ -5,11 +5,9 @@ const config = require('./config')
 const app = express()
 app.use(morgan('dev'))
 
-app.use((req, res, next) => {
-    console.error(req.url)
-    next()
+app.get('/ping', (req,res)=>{
+    return res.json({pong:'pong'})
 })
-
 
 app.use('/mail', httpProxy(`http://${config.notificationService.host}:${config.notificationService.port}`, {
     proxyReqPathResolver: (req) => req.baseUrl + req.url
